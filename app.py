@@ -1,9 +1,10 @@
-from flask import Flask, render_template, request, redirect
+from flask import Flask, render_template, request, redirect, session
 from database import inicializar_banco, conectar
 import secrets
 import string
 
 app = Flask(__name__)
+app.secret_key = "chave-do-projeto"
 
 inicializar_banco()
 
@@ -19,25 +20,34 @@ def criar_sala():
     if request.method == "POST":
         nome = request.form["nome"]
 
-        caracteres = string.ascii_uppercase + string.digits # Gera um conjunto de caracteres que inclui letras maiúsculas e números
-        codigo = "".join(secrets.choice(caracteres) for _ in range(5)) # Gera um código aleatório de 5 caracteres (letras maiúsculas e números)
+        caracteres = string.ascii_uppercase + string.digits
+        codigo = "".join(secrets.choice(caracteres) for _ in range(5))
 
-        token_mestre = secrets.token_hex(32) # Gera um token aleatório de 32 caracteres
+        token_mestre = secrets.token_hex(32)
 
         conexao = conectar()
 
-        conexao.execute(
+        sala_id = conexao.execute(
             """
             INSERT INTO salas (codigo, nome, token_mestre)
             VALUES (?, ?, ?)
             """,
             (codigo, nome, token_mestre)
-        )
+        ).lastrowid
 
         conexao.commit()
         conexao.close()
 
-        return f"Sala criada! Código: {codigo}"
+        session["token_mestre"] = token_mestre
+        session["sala_id"] = sala_id
+        # Usamos session para!
+        # Quem sou eu?
+        #Qual é meu ID?
+        #Qual sala estou?
+        #Sou o Mestre?
+        # session é um dicionario que guarda informações do usuário entre requisições / rotas, como se fosse um cookie seguro.
+
+        return redirect("/mestre")
 
     return render_template("criar_sala.html")
 
@@ -45,6 +55,28 @@ def criar_sala():
 @app.route("/entrar-sala")
 def entrar_sala():
     return "Página para entrar em sala"
+
+
+@app.route("/mestre")
+def mestre():
+    sala_id = session.get("sala_id")
+
+    if sala_id is None:
+        return "Você não é mestre de nenhuma sala."
+
+    conexao = conectar()
+
+    sala = conexao.execute(
+        "SELECT * FROM salas WHERE id = ?",
+        (sala_id,)
+    ).fetchone()
+
+    conexao.close()
+
+    if sala is None:
+        return "Sala não encontrada."
+
+    return render_template("mestre.html", sala=sala)
 
 
 if __name__ == "__main__":
