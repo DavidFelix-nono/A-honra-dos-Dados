@@ -2,24 +2,27 @@ CREATE TABLE IF NOT EXISTS salas (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     codigo TEXT UNIQUE NOT NULL,
     nome TEXT NOT NULL,
-    token_mestre TEXT UNIQUE NOT NULL
+    token_mestre TEXT UNIQUE NOT NULL,
+    nome_mestre TEXT NOT NULL,
+    senha_mestre TEXT NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS jogadores (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     sala_id INTEGER NOT NULL,
     nome TEXT NOT NULL,
-    token TEXT UNIQUE NOT NULL,
-    pontos INTEGER DEFAULT 0,
+    senha TEXT NOT NULL,
+    token TEXT NOT NULL,
     FOREIGN KEY (sala_id) REFERENCES salas(id)
 );
 
 CREATE TABLE IF NOT EXISTS fichas (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    jogador_id INTEGER UNIQUE NOT NULL,
-    nome_personagem TEXT,
-    habilidade TEXT,
-    inventario TEXT,
+    jogador_id INTEGER NOT NULL,
+    nome_personagem TEXT NOT NULL,
+    vida INTEGER NOT NULL DEFAULT 10,
+    ataque INTEGER NOT NULL DEFAULT 1,
+    defesa INTEGER NOT NULL DEFAULT 1,
     FOREIGN KEY (jogador_id) REFERENCES jogadores(id)
 );
 

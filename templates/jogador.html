@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Jogador</title>
+</head>
+<body>
+
+    <h1>Jogador: {{ jogador["nome"] }}</h1>
+    <h1>Sala: {{ sala }}</h1>
+
+    {% if ficha is none %} 
+
+        <h2>Você ainda não possui uma ficha.</h2>
+
+        <a href="/criar-ficha">
+            <button>Criar ficha</button>
+        </a>
+
+    {% else %}
+
+        <h2>{{ ficha["nome_personagem"] }}</h2>
+
+        <p>Vida: {{ ficha["vida"] }}</p>
+        <p>Ataque: {{ ficha["ataque"] }}</p>
+        <p>Defesa: {{ ficha["defesa"] }}</p>
+
+    {% endif %}
+
+    <form method="POST" action="/rolar-d4">
+        <button type="submit">Rolar D4</button>
+    </form>
+
+</body>
+</html>
