@@ -2,34 +2,60 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>Jogador</title>
+    <title>Jogador - {{ jogador["nome"] }}</title>
 </head>
 <body>
 
-    <h1>Jogador: {{ jogador["nome"] }}</h1>
-    <h1>Sala: {{ sala }}</h1>
+    <h1>Bem-vindo, {{ jogador["nome"] }}</h1>
 
-    {% if ficha is none %} 
+    <hr>
 
-        <h2>Você ainda não possui uma ficha.</h2>
+    <h2>Minha ficha</h2>
 
-        <a href="/criar-ficha">
-            <button>Criar ficha</button>
-        </a>
+    {% if ficha %}
+
+        <p>
+            Personagem:
+            {{ ficha["nome_personagem"] }}
+        </p>
+
+        <p>
+            Vida:
+            {{ ficha["vida"] }}
+        </p>
+
+        <p>
+            Ataque:
+            {{ ficha["ataque"] }}
+        </p>
+
+        <p>
+            Defesa:
+            {{ ficha["defesa"] }}
+        </p>
 
     {% else %}
 
-        <h2>{{ ficha["nome_personagem"] }}</h2>
+        <p>Você ainda não possui uma ficha.</p>
 
-        <p>Vida: {{ ficha["vida"] }}</p>
-        <p>Ataque: {{ ficha["ataque"] }}</p>
-        <p>Defesa: {{ ficha["defesa"] }}</p>
+        <a href="/criar-ficha">
+            Criar ficha
+        </a>
 
     {% endif %}
 
-    <form method="POST" action="/rolar-d4">
-        <button type="submit">Rolar D4</button>
-    </form>
+    <hr>
+
+    <h2>Rolagem de dados</h2>
+
+    <button id="botaoD4">Rolar D4</button>
+
+    <div id="resultadoRolagem">
+        <p>Nenhuma rolagem ainda.</p>
+    </div>
+    
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+    <script src="{{ url_for('static', filename='js/rolagem.js') }}"></script>
 
 </body>
 </html>

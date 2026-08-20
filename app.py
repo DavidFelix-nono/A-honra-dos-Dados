@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request, redirect, session, jsonify
+from flask_socketio import SocketIO, join_room
 from database import inicializar_banco, conectar
 import secrets
 import string
@@ -6,6 +7,8 @@ import random
 
 app = Flask(__name__)
 app.secret_key = "chave-do-projeto"
+# Cria o SocketIO ligado ao nosso servidor Flask.
+socketio = SocketIO(app)
 
 inicializar_banco()
 
@@ -314,14 +317,39 @@ def rolar_d4():
     )
 
     conexao.commit()
-    conexao.close() 
+    conexao.close()
 
+    # Envia a rolagem em tempo real para todos os usuários
+    # que estão na mesma room (mesma sala).
+    socketio.emit(
+    "rolagem_dado",
+    {
+        "nome": nome,
+        "dado": "d4",
+        "resultado": resultado
+    },
+    room=str(sala_id)
+)
+    # envia json para o javascript
     return jsonify({
     "nome": nome,
     "dado": "d4",
     "resultado": resultado
 })
 
+# Escuta o evento "entrar_sala" enviado pelo JavaScript e executa esta função.
+@socketio.on("entrar_sala")
+def entrar_sala_socket():
+
+    sala_id = session.get("sala_id")
+
+    if sala_id is None:
+        return
+
+    # Coloca o usuário na room da sua sala para receber eventos dela.
+    join_room(str(sala_id))
+
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    # Inicia o Flask através do SocketIO para permitir comunicação em tempo real.
+    socketio.run(app, host="0.0.0.0", port=5000, debug=True)

@@ -2,20 +2,28 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>Mestre</title>
+    <title>Mestre - {{ sala["nome"] }}</title>
 </head>
 <body>
 
-    <h1>Painel do Mestre</h1>
+    <h1>{{ sala["nome"] }}</h1>
 
-    <h2>{{ sala["nome"] }}</h2>
+    <h2>Mestre: {{ sala["nome_mestre"] }}</h2>
 
     <p>Código da sala: {{ sala["codigo"] }}</p>
 
-    
-    <form method="POST" action="/rolar-d4">
-        <button type="submit">Rolar D4</button>
-    </form>
+    <hr>
+
+    <h2>Rolagem de dados</h2>
+
+    <button id="botaoD4">Rolar D4</button>
+
+    <div id="resultadoRolagem">
+        <p>Nenhuma rolagem ainda.</p>
+    </div>
+
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+    <script src="{{ url_for('static', filename='js/rolagem.js') }}"></script>
 
 </body>
 </html>
