@@ -69,13 +69,33 @@ socket.on("rolagem_dado", function (dados) {
 
     console.log("Rolagem recebida:", dados);
 
-    // Cria um novo elemento <p>
-    const novaRolagem = document.createElement("p");
+    // Cria o elemento que vai representar uma rolagem.
+    const novaRolagem = document.createElement("div");
 
-    // Define o texto que será exibido
-    novaRolagem.textContent =
+    // Cria o texto da rolagem.
+    const texto = document.createElement("p");
+
+    texto.textContent =
         `${dados.nome} rolou ${dados.dado.toUpperCase()} → ${dados.resultado}`;
 
-    // Adiciona a nova rolagem ao histórico
+    // Cria a imagem do dado.
+    const imagem = document.createElement("img");
+
+    // Escolhe a imagem de acordo com o resultado.
+    imagem.src =
+        `/static/imagens/dados/d4_${dados.resultado}.png`;
+
+    // Texto alternativo da imagem.
+    imagem.alt =
+        `D4 mostrando ${dados.resultado}`;
+
+    // Define o tamanho da imagem.
+    imagem.width = 100;
+
+    // Coloca o texto e a imagem dentro da rolagem.
+    novaRolagem.appendChild(texto);
+    novaRolagem.appendChild(imagem);
+
+    // Adiciona a nova rolagem ao histórico.
     resultadoRolagem.appendChild(novaRolagem);
 });
