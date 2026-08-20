@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Fichas - {{ sala["nome"] }}</title>
+</head>
+
+<body>
+
+    <h1>Fichas dos jogadores</h1>
+
+    <hr>
+
+    {% for jogador in jogadores %}
+
+        <div>
+
+            <h2>
+                {{ jogador["nome_jogador"] }}
+            </h2>
+
+            {% if jogador["ficha_id"] %}
+
+                <p>
+                    Personagem:
+                    {{ jogador["nome_personagem"] }}
+                </p>
+
+                <p>
+                    Vida:
+                    {{ jogador["vida"] }}
+                </p>
+
+                <p>
+                    Ataque:
+                    {{ jogador["ataque"] }}
+                </p>
+
+                <p>
+                    Defesa:
+                    {{ jogador["defesa"] }}
+                </p>
+
+            {% else %}
+
+                <p>
+                    Este jogador ainda não possui uma ficha.
+                </p>
+
+            {% endif %}
+
+        </div>
+
+        <hr>
+
+    {% endfor %}
+
+</body>
+
+</html>

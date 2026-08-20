@@ -386,6 +386,67 @@ def entrar_sala_socket():
     print("Usuário entrou na room:", str(sala_id))
 
 
+
+@app.route("/fichas")
+def fichas():
+
+    token_mestre = session.get("token_mestre")
+    sala_id = session.get("sala_id")
+
+    # Só o mestre pode acessar essa página.
+    if token_mestre is None or sala_id is None:
+        return "Acesso permitido somente ao mestre."
+
+    conexao = conectar()
+
+    # Verifica se o mestre realmente pertence à sala.
+    sala = conexao.execute(
+        """
+        SELECT *
+        FROM salas
+        WHERE id = ? AND token_mestre = ?
+        """,
+        (sala_id, token_mestre)
+    ).fetchone()
+
+    if sala is None:
+        conexao.close()
+        return "Sessão de mestre inválida."
+
+    # Busca todos os jogadores da sala
+    # junto com suas fichas.
+    jogadores = conexao.execute(
+        """
+        SELECT
+            jogadores.id AS jogador_id,
+            jogadores.nome AS nome_jogador,
+
+            fichas.id AS ficha_id,
+            fichas.nome_personagem,
+            fichas.vida,
+            fichas.ataque,
+            fichas.defesa
+
+        FROM jogadores
+
+        LEFT JOIN fichas
+            ON jogadores.id = fichas.jogador_id
+
+        WHERE jogadores.sala_id = ?
+
+        ORDER BY jogadores.id
+        """,
+        (sala_id,)
+    ).fetchall()
+
+    conexao.close()
+
+    return render_template(
+        "fichas_mestre.html",
+        jogadores=jogadores,
+        sala=sala
+    )
+    
 if __name__ == "__main__":
     # Inicia o Flask através do SocketIO para permitir comunicação em tempo real.
     socketio.run(app, host="0.0.0.0", port=5000, debug=True)
