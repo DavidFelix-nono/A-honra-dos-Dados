@@ -174,32 +174,50 @@ def mestre():
         (sala_id, token_mestre)
     ).fetchone()
 
-    conexao.close()
-
     if sala is None:
+        conexao.close()
         return "Você não é o mestre desta sala."
 
-    return render_template("mestre.html", sala=sala)
+    # Busca todas as rolagens dessa sala,
+    # começando da mais recente.
+    rolagens = conexao.execute(
+        """
+        SELECT
+            rolagens.*,
+            jogadores.nome AS nome_jogador
+        FROM rolagens
+        LEFT JOIN jogadores
+            ON rolagens.jogador_id = jogadores.id
+        WHERE rolagens.sala_id = ?
+        ORDER BY rolagens.id DESC
+        """,
+        (sala_id,)
+    ).fetchall()
+
+    conexao.close()
+
+    return render_template(
+        "mestre.html",
+        sala=sala,
+        rolagens=rolagens
+    )
 
  
 @app.route("/jogador")
 def jogador():
 
     jogador_id = session.get("jogador_id")
-    sala_id = session.get("sala_id")
 
     if jogador_id is None:
         return "Você não está em nenhuma sala."
 
     conexao = conectar()
 
-    sala_nome = conexao.execute(
-        "SELECT nome FROM salas WHERE id = ?",
-        (sala_id,)
-    ).fetchone()["nome"]
-
     jogador = conexao.execute(
-        "SELECT * FROM jogadores WHERE id = ?",
+        """
+        SELECT * FROM jogadores
+        WHERE id = ?
+        """,
         (jogador_id,)
     ).fetchone()
 
@@ -212,13 +230,28 @@ def jogador():
         (jogador_id,)
     ).fetchone()
 
+    # Busca todas as rolagens da sala do jogador.
+    rolagens = conexao.execute(
+        """
+        SELECT
+            rolagens.*,
+            jogadores.nome AS nome_jogador
+        FROM rolagens
+        LEFT JOIN jogadores
+            ON rolagens.jogador_id = jogadores.id
+        WHERE rolagens.sala_id = ?
+        ORDER BY rolagens.id DESC
+        """,
+        (jogador["sala_id"],)
+    ).fetchall()
+
     conexao.close()
 
     return render_template(
         "jogador.html",
         jogador=jogador,
-        sala=sala_nome,
-        ficha=ficha
+        ficha=ficha,
+        rolagens=rolagens
     )
 
 @app.route("/criar-ficha", methods=["GET", "POST"])
@@ -343,11 +376,14 @@ def entrar_sala_socket():
 
     sala_id = session.get("sala_id")
 
+
     if sala_id is None:
+        print("Usuário não possui sala.")
         return
 
-    # Coloca o usuário na room da sua sala para receber eventos dela.
     join_room(str(sala_id))
+
+    print("Usuário entrou na room:", str(sala_id))
 
 
 if __name__ == "__main__":

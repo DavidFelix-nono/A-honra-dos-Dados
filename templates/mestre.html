@@ -19,7 +19,32 @@
     <button id="botaoD4">Rolar D4</button>
 
     <div id="resultadoRolagem">
-        <p>Nenhuma rolagem ainda.</p>
+
+        {% if rolagens %}
+
+            {% for rolagem in rolagens %}
+
+                <p>
+
+                    {% if rolagem["nome_jogador"] %}
+                        {{ rolagem["nome_jogador"] }}
+                    {% else %}
+                        Mestre
+                    {% endif %}
+
+                    rolou {{ rolagem["dado"].upper() }}
+                    → {{ rolagem["resultado"] }}
+
+                </p>
+
+            {% endfor %}
+
+        {% else %}
+
+            <p>Nenhuma rolagem ainda.</p>
+
+        {% endif %}
+
     </div>
 
     <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
