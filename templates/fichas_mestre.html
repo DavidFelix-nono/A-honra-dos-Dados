@@ -27,20 +27,56 @@
                     {{ jogador["nome_personagem"] }}
                 </p>
 
-                <p>
-                    Vida:
-                    {{ jogador["vida"] }}
-                </p>
+                <form method="POST" action="/editar-ficha">
 
-                <p>
-                    Ataque:
-                    {{ jogador["ataque"] }}
-                </p>
+                    <!-- Identifica qual ficha estamos editando -->
+                    <input
+                        type="hidden"
+                        name="ficha_id"
+                        value="{{ jogador['ficha_id'] }}"
+                    >
 
-                <p>
-                    Defesa:
-                    {{ jogador["defesa"] }}
-                </p>
+                    <label>
+                        Vida:
+                    </label>
+
+                    <input
+                        type="number"
+                        name="vida"
+                        value="{{ jogador['vida'] }}"
+                    >
+
+                    <br><br>
+
+                    <label>
+                        Ataque:
+                    </label>
+
+                    <input
+                        type="number"
+                        name="ataque"
+                        value="{{ jogador['ataque'] }}"
+                    >
+
+                    <br><br>
+
+                    <label>
+                        Defesa:
+                    </label>
+
+                    <input
+                        type="number"
+                        name="defesa"
+                        value="{{ jogador['defesa'] }}"
+                    >
+
+                    <br><br>
+
+                    <button type="submit">
+                        Salvar alterações
+                    </button>
+
+                </form>
 
             {% else %}
 

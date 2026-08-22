@@ -446,7 +446,95 @@ def fichas():
         jogadores=jogadores,
         sala=sala
     )
-    
+
+@app.route("/editar-ficha", methods=["POST"])
+def editar_ficha():
+
+    # =====================================================
+    # VERIFICAR SE É MESTRE
+    # =====================================================
+
+    token_mestre = session.get("token_mestre")
+    sala_id = session.get("sala_id")
+
+    if token_mestre is None or sala_id is None:
+        return "Acesso permitido somente ao mestre."
+
+    conexao = conectar()
+
+    # Verifica se o mestre realmente pertence à sala.
+    sala = conexao.execute(
+        """
+        SELECT *
+        FROM salas
+        WHERE id = ? AND token_mestre = ?
+        """,
+        (sala_id, token_mestre)
+    ).fetchone()
+
+    if sala is None:
+        conexao.close()
+        return "Sessão de mestre inválida."
+
+    # =====================================================
+    # PEGAR DADOS ENVIADOS PELO FORMULÁRIO
+    # =====================================================
+
+    ficha_id = request.form["ficha_id"]
+    vida = request.form["vida"]
+    ataque = request.form["ataque"]
+    defesa = request.form["defesa"]
+
+    # =====================================================
+    # VERIFICAR SE A FICHA PERTENCE À SALA DO MESTRE
+    # =====================================================
+
+    ficha = conexao.execute(
+        """
+        SELECT fichas.id
+        FROM fichas
+
+        INNER JOIN jogadores
+            ON fichas.jogador_id = jogadores.id
+
+        WHERE fichas.id = ?
+        AND jogadores.sala_id = ?
+        """,
+        (ficha_id, sala_id)
+    ).fetchone()
+
+    if ficha is None:
+        conexao.close()
+        return "Ficha não pertence a esta sala."
+
+    # =====================================================
+    # ATUALIZAR FICHA
+    # =====================================================
+
+    conexao.execute(
+        """
+        UPDATE fichas
+
+        SET
+            vida = ?,
+            ataque = ?,
+            defesa = ?
+
+        WHERE id = ?
+        """,
+        (
+            vida,
+            ataque,
+            defesa,
+            ficha_id
+        )
+    )
+
+    conexao.commit()
+    conexao.close()
+
+    return redirect("/fichas")
+
 if __name__ == "__main__":
     # Inicia o Flask através do SocketIO para permitir comunicação em tempo real.
     socketio.run(app, host="0.0.0.0", port=5000, debug=True)
